@@ -15,7 +15,9 @@ angular
         'ngRoute',
         'ngSanitize',
         'rzModule',
-        'cgNotify'
+        'cgNotify',
+
+        'btford.socket-io'
     ])
     .config(function ($routeProvider) {
         $routeProvider
@@ -40,7 +42,6 @@ angular
         };
     });
     $httpProvider.interceptors.push('httpInterceptor');
+}).factory('SocketFactory', function (socketFactory) {
+    return socketFactory();
 });
-/*.factory('SocketFactory', function (socketFactory) {
- return socketFactory();
- });*/

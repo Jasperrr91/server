@@ -15,6 +15,8 @@
                         var data = result.data;
                         $rootScope.$emit('player_status_update', data);
                         return data
+                    },function () {
+                        return false
                     })
                 },
                 getPlaylist: function () {
@@ -22,12 +24,16 @@
                         var data = result.data;
                         $rootScope.$emit('player_playlist_update', data);
                         return data
+                    },function () {
+                        return false
                     })
                 },
                 castNow: function (url) {
                     var url_encoded_url = encodeURIComponent(url);
                     return $http.get('/stream?url=' + url_encoded_url).then(function (result) {
                         return result.data;
+                    },function () {
+                        return false
                     });
                 },
                 addToQueue: function (url) {
@@ -39,6 +45,8 @@
                 scheduleShutdown: function (seconds) {
                     return $http.get('/shutdown?time=' + seconds).then(function (result) {
                         return result.data;
+                    },function () {
+                        return false
                     });
                 },
                 doAction: function (action) {
@@ -74,6 +82,8 @@
 
                     return $http.get(endpoint).then(function (result) {
                         return result.data;
+                    },function () {
+                        return false
                     })
                 }
             };

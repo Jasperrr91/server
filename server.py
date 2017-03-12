@@ -10,6 +10,9 @@ from os.path import isfile, abspath, normpath, dirname, join, basename
 import sys
 import json
 from flask import *
+from flask_socketio import SocketIO
+from flask_socketio import send, emit
+from threading import Timer
 
 with open('picast.conf') as f:
     config = json.load(f)
@@ -18,7 +21,6 @@ with open('picast.conf') as f:
 logging.basicConfig(filename='PiCast.log', format="%(asctime)s - %(levelname)s - %(message)s",
                     datefmt='%m-%d %H:%M:%S', level=logging.INFO)
 logger = logging.getLogger("PiCast")
-
 # Creating handler to print messages on stdout
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -37,6 +39,7 @@ open('video.queue', 'w').close()  # Reset queue
 logger.info('Server successfully started!')
 
 application = Flask(__name__, static_url_path='')
+socketio = SocketIO(application)
 
 path = normpath(abspath(dirname(__file__)))
 
@@ -132,11 +135,12 @@ def do_stream():
                 playlist(url, True)
             else:
                 launchvideo(url, False)
+        socketio.emit('play', url)
         return "1"
     except Exception, e:
         logger.error('Error in launchvideo function or during downlading the subtitles')
         logger.exception(e)
-        return "1"
+        return "0"
 
 
 @application.route('/queue', methods=['GET', 'POST', 'OPTIONS'])
@@ -166,6 +170,7 @@ def add_queue():
                 playlist(url, True)
             else:
                 launchvideo(url, False)
+            socketio.emit('queue', url)
             return "1"
     except Exception, e:
         logger.error('Error in launchvideo or queuevideo function !')
@@ -250,4 +255,20 @@ def webstate():
     return currentState
 
 
-application.run(debug=False, host='0.0.0.0', port=2020, use_evalex=False)
+@socketio.on('connect')
+def test_connect():
+    emit('connected', {'data': 'Connected'})
+
+
+@socketio.on('connected')
+def test_connect():
+    ws_update_status()
+
+
+def ws_update_status():
+    socketio.emit('player_status_update',{'data': getStatus()}, broadcast=True)
+    t = Timer(1.0, ws_update_status)
+    t.start()
+
+
+socketio.run(application, debug=False, host='0.0.0.0', port=2020)

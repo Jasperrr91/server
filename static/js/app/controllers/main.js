@@ -8,17 +8,26 @@
  * Controller of the picastApp
  */
 angular.module('picastApp')
-    .controller('MainCtrl', ['$scope', 'PiCastService', '$rootScope', '$interval', 'notify', function ($scope, PiCastService, $rootScope, $interval, notify) {
-        PiCastService.getStatus();
-        $interval(PiCastService.getStatus, 1000);
+    .controller('MainCtrl', ['$scope', 'PiCastService', '$rootScope', '$interval', 'notify', 'SocketFactory',
+        function ($scope, PiCastService, $rootScope, $interval, notify, SocketFactory) {
+            PiCastService.getStatus();
+            $interval(PiCastService.getStatus, 1000);
+            SocketFactory.on('connected', function (data) {
+                SocketFactory.emit('connected');
+            });
 
-        $rootScope.$on('error', function (evt, message) {
-            notify.closeAll();
-            notify(message)
-        });
+            SocketFactory.on('player_status_update', function (data) {
+                console.log('player_status_update', data)
+            });
 
-        $rootScope.$on('player_status_update', function (evt, status) {
-            $scope.player_status = status;
-             $rootScope.$broadcast('rzSliderForceRender');
-        });
-    }]);
+
+            $rootScope.$on('error', function (evt, message) {
+                notify.closeAll();
+                notify(message)
+            });
+
+            $rootScope.$on('player_status_update', function (evt, status) {
+                $scope.player_status = status;
+                $rootScope.$broadcast('rzSliderForceRender');
+            });
+        }]);

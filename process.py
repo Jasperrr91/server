@@ -4,9 +4,7 @@ import sys
 import threading
 import logging
 import json
-import subprocess
-import re
-from pprint import pprint
+
 
 with open('picast.conf') as f:
     config = json.load(f)
@@ -41,6 +39,9 @@ def queuevideo(url, onlyqueue=False):
     logger.info('Extracting source video ({url}) URL, before adding to queue...'.format(url=url))
 
     out = return_full_url(url, False)
+    if not out:
+        logger.error('Error fetching video info')
+        return
 
     if not out.get('url', False):
         logger.error('Error getting video url')

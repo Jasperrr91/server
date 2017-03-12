@@ -16,11 +16,11 @@ angular.module('picastApp')
         ];
         PiCastService.getPlaylist();
         $interval(PiCastService.getPlaylist, 10000)
-
-        $rootScope.$on('player_playlist_update', function (evt, status) {
-            $scope.playlist = status;
-        });
-
+        //
+        // $rootScope.$on('player_playlist_update', function (evt, status) {
+        //     $scope.playlist = status;
+        // });
+        //
         // $scope.playerAction = function (action) {
         //     SocketFactory.emit('player_action', {action: action});
         // };
